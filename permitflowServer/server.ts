@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
 import { v4 as uuidv4 } from 'uuid';
-import './database/databaseActions.ts';
-import { grabCompiledTree, storeResults } from './database/databaseActions.ts';
-import { questionSet, sessionHolder } from '../interfaces.ts';
+import './database/databaseActions';
+import { grabCompiledTree, storeResults } from './database/databaseActions';
+import { questionSet, sessionHolder } from '../interfaces';
 
 function generateCookie(): string {
   return uuidv4().substr(0, 15);
@@ -24,8 +24,9 @@ app.get('/getInitialQuestions', (req: Request, res: Response) => {
   const questions = treeInfo[0];
   const compiledTree = treeInfo[1];
   let answerTree : [number[]] = [[]];
-  if(req.cookie in tempSessions){
-    answerTree=tempSessions[req.cookie];
+  const sessionID = req.cookies["sessionID"];
+  if(sessionID in tempSessions){
+    answerTree=tempSessions[sessionID];
     }
   else{
     var cookie : string = generateCookie();

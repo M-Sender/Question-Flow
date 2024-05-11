@@ -4,5 +4,15 @@
     "express": "^4.19.2",
     "sqlite3": "^5.1.7",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^4.17.21",
+    "@types/uuid": "^9.0.8"
+  },
+  "typescript": {
+    "compilerOptions": {
+      "allowImportingTsExtensions": true
+    }
   }
 }

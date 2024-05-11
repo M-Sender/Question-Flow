@@ -3,15 +3,18 @@ export interface sessionHolder {
   }
   
 export interface questionSet {
-    [key:number] : [string,string[]]
+    [key:string] : stepLogic
   }
+
+export interface singleStep {
+    
+}
+export interface step{
+    [key:string] : []
+}
 
 export interface workflow{
     workflow : step[]
-}
-
-export interface step {
-    [id: number]: string;
 }
 
 export interface stepLogic { //[[1,{1:"text",2:"text"}],["if last step"]]]
@@ -26,6 +29,9 @@ export interface QuestionContainerProps{
     callBack : Function
 }
 
+export interface compiledTree{
+    [id:string] : stepLogic;
+  }
 
 export enum formTypes{
     text,

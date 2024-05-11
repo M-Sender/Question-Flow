@@ -1,6 +1,9 @@
 import express, { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
+import './database/databaseActions.ts';
+import { grabCompiledTree, storeResults } from './database/databaseActions.ts';
+
 function generateCookie(): string {
   return uuidv4().substr(0, 15);
 }
@@ -19,7 +22,7 @@ const tempSessions: sessionHolder ={};
 
 app.get('/getInitialQuestions', (req: Request, res: Response) => {
   const municipality : Number=0;
-  const questions : JSON = JSON;//get compiledTree from db (using municipality)
+  const questions : JSON = grabCompiledTree(municipality);
   var cookie : string = generateCookie();
   while (cookie in tempSessions){
     cookie = generateCookie();
@@ -34,8 +37,8 @@ app.post('/saveTempSession', (req: Request, res: Response) => {
 });
 
 app.post('/saveResults', (req: Request, res: Response) => {
-  const { cookie, answers } = req.body;
-  //store results
+  const { cookie, answers, municipality } = req.body;
+  storeResults(answers,municipality)
   delete tempSessions[cookie];
   res.json({ message: 'Results saved successfully'});
 });

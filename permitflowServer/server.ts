@@ -1,33 +1,50 @@
 import express, { Request, Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
+
+function generateCookie(): string {
+  return uuidv4().substr(0, 15);
+}
+
 
 const app = express();
 const PORT = 3000;
 
-// Middleware for parsing JSON body
 app.use(express.json());
 
-// Endpoint to get initial questions
+interface sessionHolder {
+  [key: string]: [number, number[]];
+}
+
+const tempSessions: sessionHolder ={};
+
 app.get('/getInitialQuestions', (req: Request, res: Response) => {
-  
-  const questions = ['Question 1', 'Question 2', 'Question 3'];
-  res.json({ questions });
+  const municipality : Number=0;
+  const questions : JSON = JSON;//get compiledTree from db (using municipality)
+  var cookie : string = generateCookie();
+  while (cookie in tempSessions){
+    cookie = generateCookie();
+  }
+  res.json({ questions, cookie });
 });
 
-// Endpoint to save temporary session data
 app.post('/saveTempSession', (req: Request, res: Response) => {
-  const { cookie, answers } = req.body;
-  // Your logic for saving temporary session data
-  res.json({ message: 'Temporary session data saved successfully', cookie, answers });
+  const { cookie, answers, municipality } = req.body;
+  tempSessions[cookie] = answers;
+  res.json({ message: 'Temporary session data saved successfully'});
 });
 
-// Endpoint to save results
 app.post('/saveResults', (req: Request, res: Response) => {
   const { cookie, answers } = req.body;
-  // Your logic for saving results
-  res.json({ message: 'Results saved successfully', cookie, answers });
+  //store results
+  delete tempSessions[cookie];
+  res.json({ message: 'Results saved successfully'});
 });
 
-// Start the Express server
+
+
+
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

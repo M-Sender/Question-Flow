@@ -23,6 +23,7 @@ export const tables = {
     columns: {
       id: 'id',
       prompt: 'prompt',
+      subText: 'subText'
     },
   },
   questionnaireResults: {

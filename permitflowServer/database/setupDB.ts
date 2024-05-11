@@ -40,11 +40,89 @@ function createQuestionnaireResultsTable() {
   });
 }
 
+function insertCompiledTree(municipalityId, compiledTree) {
+  db.run(`INSERT INTO ${tables.compiledTrees.tableName} (${tables.compiledTrees.columns.municipality_id}, ${tables.compiledTrees.columns.compiledTree})
+          VALUES (?, ?)`, [municipalityId, JSON.stringify(compiledTree)], (err) => {
+      if (err) {
+          console.error('Error inserting compiled tree:', err);
+      } else {
+          console.log('Compiled tree inserted successfully');
+      }
+  });
+}
+
+function insertMunicipality(id : number, name : string) {
+  db.run(`INSERT INTO ${tables.municipalities.tableName} (${tables.municipalities.columns.id},${tables.municipalities.columns.name})
+          VALUES (?,?)`, [id,name], (err) => {
+      if (err) {
+          console.error('Error inserting municipality:', err);
+      } else {
+          console.log('Municipality inserted successfully');
+      }
+  });
+}
+
+function insertStep(id : number, prompt : string, extraText? : string[] ) {
+  db.run(`INSERT INTO ${tables.steps.tableName} (${tables.steps.columns.id},${tables.steps.columns.prompt},${tables.steps.columns.subText})
+          VALUES (?,?)`, [id,prompt,extraText], (err) => {
+      if (err) {
+          console.error('Error inserting step:', err);
+      } else {
+          console.log('Step inserted successfully');
+      }
+  });
+}
+
+function insertQuestionnaireResult(results, municipalityId) {
+  db.run(`INSERT INTO ${tables.questionnaireResults.tableName} (${tables.questionnaireResults.columns.results}, ${tables.questionnaireResults.columns.municipality})
+          VALUES (?, ?)`, [JSON.stringify(results), municipalityId], (err) => {
+      if (err) {
+          console.error('Error inserting questionnaire result:', err);
+      } else {
+          console.log('Questionnaire result inserted successfully');
+      }
+  });
+}
+
+
 createCompiledTreesTable();
 createMunicipalitiesTable();
 createStepsTable();
 createQuestionnaireResultsTable();
 
-//Write code to seed DB with example for notion
+//Write code to seed DB with example from notion
+
+insertMunicipality(0,"New York");
+
+insertStep(1,"Interior work");
+insertStep(2,"Exterior work");
+insertStep(3,"Bathroom remodel");
+insertStep(4,"New bathroom");
+insertStep(5,"New laundry room");
+insertStep(6,"Other");
+insertStep(7,"Over-the-Counter Submission Process",["A building permit is required.","Submit application for OTC review"]);
+insertStep(8,"In-House Review Process",["A building permit is required","Include plans sets.","Submit application for in-house review."]);
+insertStep(9,"Garage door replacement");
+insertStep(10,"Exterior doors");
+insertStep(11,"Fencing");
+insertStep(12,"Other");
+insertStep(14,"No Permit",["Nothing is required! You're set to build."]);
+
+insertCompiledTree(0,{
+  0:[1,[1,2]],
+  1:[2,[3,4,5,6]],//multi select need importance level
+  3:[0,[7],2],
+  4:[0,[8],1],
+  5:[0,[8],1],
+  6:[0,[8],1],
+  2:[2,[9,10,11,12]],//multi select need importance level
+  9:[0,[7],2],
+  10:[0,[7],2],
+  11:[0,[14],1],
+  12:[0,[8],3]
+
+})
+
+
 
 db.close();

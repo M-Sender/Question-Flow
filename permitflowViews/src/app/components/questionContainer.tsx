@@ -28,7 +28,6 @@ export const QuestionContainer: React.FC<QuestionContainerProps> = (props) => {
 
     if (props.data.formType === formTypes.text) {
         const step = props.data.workflow["0"];
-        let key = 0;
         props.callBack([answerSendTypes.sendToDB, step]);
         return (
             <div className="max-w-xl mx-auto">

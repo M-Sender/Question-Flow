@@ -20,11 +20,6 @@ app.get('/getInitialQuestions', async (req: Request, res: Response) => {
   res.json({ compiledTree: treeInfo, steps: stepInfo , answerTree : answerTree});
 });
 
-app.post('/saveTempSession', (req: Request, res: Response) => {
-  const answers= req.body.answerTree;
-  res.json({ message: 'Temporary session data saved successfully'});
-});
-
 app.put('/saveResults', (req: Request, res: Response) => {
   const answers= req.body.answerTree;
   const result= req.body.result;

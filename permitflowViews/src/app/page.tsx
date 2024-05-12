@@ -39,9 +39,11 @@ export default function Page() {
         if (compiledTree) {
           answer.forEach(selection => {
             const temp = compiledTree[selection];
-            if (temp.importance && temp.importance > priorityLevel)
+            if (temp.importance!==undefined && temp.importance > priorityLevel){
               priorityLevel = temp.importance;
-            priorityStep = selection;
+              priorityStep = selection;
+            }
+              
           });
           setCurrentStep(priorityStep);
         }
@@ -82,33 +84,12 @@ export default function Page() {
       const response = await axios(config);
       const data = response.data;
       setCompiledTree(data.compiledTree);
-      if (answerTree[0].length !== 0) {
-        setAnswerTree(data.answerTree);
-        setCurrentStep(answerTree.length);
-      } else {
-        setCurrentStep(0);
-      }
-
+      setCurrentStep(0);
       setStepInfo(data.steps);
+      
       if (compiledTree) {
         setCurrentOptions(compiledTree[currentStep]);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function sendTempSession() {
-    try {
-      const config: AxiosRequestConfig = {
-        method: 'put',
-        url: 'http://localhost:8000/sendTempSession',
-        params: {
-          municipality: 0,
-          answerTree: answerTree
-        },
-      };
-      await axios(config);
     } catch (error) {
       console.error(error);
     }

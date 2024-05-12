@@ -115,25 +115,25 @@ async function seedDB(): Promise<void> {
         prompt:"",
         formType: 3,
         workflow: [7],
-        importance: 2
+        importance: 1
       },
       4: {
         prompt:"",
         formType: 3,
         workflow: [8],
-        importance: 1
+        importance: 2
       },
       5: {
         prompt:"",
         formType: 3,
         workflow: [8],
-        importance: 1
+        importance: 2
       },
       6: {
         prompt:"",
         formType: 3,
         workflow: [8],
-        importance: 1
+        importance: 2
       },
       2: {
         prompt:"What exterior work are you doing?",

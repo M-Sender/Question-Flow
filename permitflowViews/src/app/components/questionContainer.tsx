@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { answerSendTypes, formTypes, QuestionContainerProps } from "../../../../interfaces";
 
 export const QuestionContainer: React.FC<QuestionContainerProps> = (props) => {

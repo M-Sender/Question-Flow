@@ -72,4 +72,4 @@ If there was more time, here are the changes I would make:
 
 ## Video link
 
-{loom or youtube link}
+Loom Link: [https://www.loom.com/share/4eb4f6ec5be34dc889bb82f232973ccf?sid=4f389f35-94f3-4dea-945e-f3a36efc03b2](https://www.loom.com/share/4eb4f6ec5be34dc889bb82f232973ccf?sid=4f389f35-94f3-4dea-945e-f3a36efc03b2)

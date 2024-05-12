@@ -1,77 +1,80 @@
+'use client'
 import { useEffect, useState } from "react";
-import { formTypes, QuestionContainerProps, workflow } from "../../../../interfaces";
+import { answerSendTypes, formTypes, QuestionContainerProps } from "../../../../interfaces";
 
-export const QuestionContainer :React.FC<QuestionContainerProps> = (props) => {
+export const QuestionContainer: React.FC<QuestionContainerProps> = (props) => {
+    const [currentAns, setCurrentAns] = useState<string[]>([]);
+    let formLogic = singleSelectCallBack;
 
-    const [workflow,setWorkflow] = useState<workflow>(); 
-    const [endText,setsetEndText] = useState<string[]>(); 
-    const [formLogic,setFormLogic] = useState<Function>();
-    const [currentAns, setCurrentAns] = useState<number[]>();
-    const formType = props.data.formType;
-    setWorkflow(props.data.workflow)
-    setsetEndText(props.data.endText)
-
-    function singleSelectCallBack(id : number){
-        if(currentAns?.includes(id)){
-            setCurrentAns([])
-        }
-        else{
-            setCurrentAns([id])
-        }
-
-    }
-    function multiSelectCallBack(id : number){
-        if(currentAns?.includes(id)){
-            setCurrentAns(currentAns.filter(item => item !== id));
-        }
-        else{
-            setCurrentAns(currentAns?.concat(id));
-        }
+    if (!props.data.workflow || !props.data.formType || !props.stepInfo) {
+        return null;
     }
 
-    useEffect(()=>{
-        if(formType === formTypes.singleSelect){
-            setFormLogic(singleSelectCallBack)
-        }
-        else if(formType === formTypes.multiSelect){
-            setFormLogic(multiSelectCallBack)
-        }
+    if (props.data.formType === formTypes.singleSelect) {
+        formLogic = singleSelectCallBack;
+    } else if (props.data.formType === formTypes.multiSelect) {
+        formLogic = multiSelectCallBack;
     }
-    ,[formType]);
 
-    if(formType==formTypes.text){//[title,sub,sub]
-        if(endText===undefined){return;}
-        return (
-            <>
-            <h6>{endText[0]}</h6>
-            {endText.slice(1).map(text =>
-                <p>{text}</p>
-            )}
-            </>
+    function singleSelectCallBack(id: string) {
+        setCurrentAns(currentAns => currentAns.includes(id) ? [] : [id]);
+    }
 
+    function multiSelectCallBack(id: string) {
+        setCurrentAns(currentAns =>
+            currentAns.includes(id) ? currentAns.filter(item => item !== id) : [...currentAns, id]
         );
     }
 
-    if(!workflow||!formLogic){return}
-    const tempVals = Object.values(workflow);
+    if (props.data.formType === formTypes.text) {
+        const step = props.data.workflow["0"];
+        let key = 0;
+        props.callBack([answerSendTypes.sendToDB, step]);
+        return (
+            <div className="max-w-xl mx-auto">
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">{props.stepInfo[step].prompt}</h1>
+                {props.stepInfo[step].subText.map((text, index) => (
+                    <p key={index} className="mb-2 text-gray-800">{text}</p>
+                ))}
+            </div>
+        );
+    }
+
     return (
-        
-        <>
-        {
-        tempVals.map(step => (
-                <label key={step.id}>
+        <div className="max-w-xl mx-auto">
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">{props.data.prompt}</h1>
+            {Object.values(props.data.workflow).map((step, index) => (
+                <label key={step} className="block mb-2 text-gray-800 cursor-pointer">
                     <input
                         type="checkbox"
-                        checked={currentAns?.includes(step.id)}
-                        onChange={() => formLogic(step.id,setCurrentAns) }
+                        checked={currentAns?.includes(step)}
+                        onChange={() => formLogic(step)}
+                        className="mr-2 text-blue-500 form-checkbox rounded focus:ring-blue-500"
                     />
-                    {step.step[step.id]}
+                    <span className="bg-blue-100 hover:bg-blue-200 rounded-md px-2 py-1 transition-colors duration-300">
+                        {props.stepInfo ? props.stepInfo[step].prompt : null}
+                    </span>
                 </label>
+            ))}
 
-
-        ))}
-        </>
-    
+            <div className="mt-4">
+                {!props.isStart && (
+                    <button
+                        className="bg-blue-500 text-white py-2 px-4 mr-4 rounded hover:bg-blue-600 transition duration-300"
+                        title="Go Back"
+                        onClick={() => { props.callBack([answerSendTypes.goBack]); setCurrentAns([]); }}
+                    >
+                        Go Back
+                    </button>
+                )}
+                <button
+                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+                    title="Continue"
+                    onClick={() => { props.callBack(currentAns); setCurrentAns([]); }}
+                >
+                    Continue
+                </button>
+            </div>
+        </div>
     );
-}
-
+};

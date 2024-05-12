@@ -31,8 +31,9 @@ export const tables = {
     columns: {
       id: 'id',
       timestamp: 'timestamp',
-      results: 'results',
-      municipality: 'municipalityß'
+      answers: 'answers',
+      municipality: 'municipality',
+      result: 'result'
     },
   },
 };

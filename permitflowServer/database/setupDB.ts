@@ -1,149 +1,175 @@
 import sqlite3 from 'sqlite3';
 import { config, tables } from './config';
+import { promisify } from 'util';
 
 const db = new sqlite3.Database(config.databasePath);
+const dbRunAsync: Function = promisify(db.run).bind(db);
 
 function createCompiledTreesTable() {
-  db.run(`CREATE TABLE ${tables.compiledTrees.tableName} (
+  return dbRunAsync(`CREATE TABLE ${tables.compiledTrees.tableName} (
     ${tables.compiledTrees.columns.id} INTEGER PRIMARY KEY,
     ${tables.compiledTrees.columns.municipality_id} INTEGER,
     ${tables.compiledTrees.columns.compiledTree} JSON,
     FOREIGN KEY (${tables.compiledTrees.columns.municipality_id}) REFERENCES ${tables.municipalities.tableName}(${tables.municipalities.columns.id})
-  )`, () => {
-  });
+  )`);
 }
 
 function createMunicipalitiesTable() {
-  db.run(`CREATE TABLE ${tables.municipalities.tableName} (
+  return dbRunAsync(`CREATE TABLE ${tables.municipalities.tableName} (
     ${tables.municipalities.columns.id} INTEGER PRIMARY KEY,
     ${tables.municipalities.columns.name} TEXT
-  )`, () => {
-  });
+  )`);
 }
 
 function createStepsTable() {
-  db.run(`CREATE TABLE ${tables.steps.tableName} (
+  return dbRunAsync(`CREATE TABLE ${tables.steps.tableName} (
     ${tables.steps.columns.id} INTEGER PRIMARY KEY,
     ${tables.steps.columns.prompt} TEXT,
     ${tables.steps.columns.subText} JSON
-  )`, () => {
-  });
+  )`);
 }
 
 function createQuestionnaireResultsTable() {
-  db.run(`CREATE TABLE ${tables.questionnaireResults.tableName} (
+  return dbRunAsync(`CREATE TABLE ${tables.questionnaireResults.tableName} (
     ${tables.questionnaireResults.columns.id} INTEGER PRIMARY KEY,
     ${tables.questionnaireResults.columns.timestamp} DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ${tables.questionnaireResults.columns.results} JSON,
+    ${tables.questionnaireResults.columns.answers} JSON,
     ${tables.questionnaireResults.columns.municipality} INTEGER, 
+    ${tables.questionnaireResults.columns.result} INTEGER,
     FOREIGN KEY (${tables.questionnaireResults.columns.municipality}) REFERENCES ${tables.municipalities.tableName}(${tables.municipalities.columns.id})
-  )`, () => {
-  });
+    FOREIGN KEY (${tables.questionnaireResults.columns.result}) REFERENCES ${tables.steps.tableName}(${tables.steps.columns.id})
+  )`);
 }
 
-function insertCompiledTree(municipalityId : number, compiledTree : Object) {
-  db.run(`INSERT INTO ${tables.compiledTrees.tableName} (${tables.compiledTrees.columns.municipality_id}, ${tables.compiledTrees.columns.compiledTree})
-          VALUES (?, ?)`, [municipalityId, JSON.stringify(compiledTree)], (err) => {
-      if (err) {
-          console.error('Error inserting compiled tree:', err);
-      } else {
-          console.log('Compiled tree inserted successfully');
+function insertCompiledTree(municipalityId: number, compiledTree: Object) {
+  return dbRunAsync(`INSERT INTO ${tables.compiledTrees.tableName} (${tables.compiledTrees.columns.municipality_id}, ${tables.compiledTrees.columns.compiledTree})
+          VALUES (?, ?)`, [municipalityId, JSON.stringify(compiledTree)]);
+}
+
+function insertMunicipality(id: number, name: string) {
+  return dbRunAsync(`INSERT INTO ${tables.municipalities.tableName} (${tables.municipalities.columns.id},${tables.municipalities.columns.name})
+          VALUES (?,?)`, [id, name]);
+}
+
+function insertStep(id: number, prompt: string, extraText?: string[]) {
+  const JSONextraText: string = JSON.stringify(extraText);
+  return dbRunAsync(`INSERT INTO ${tables.steps.tableName} (${tables.steps.columns.id},${tables.steps.columns.prompt},${tables.steps.columns.subText})
+          VALUES (?,?,?)`, [id, prompt, JSONextraText]);
+}
+
+async function buildTables(): Promise<void> {
+  try {
+    await createCompiledTreesTable();
+    await createMunicipalitiesTable();
+    await createStepsTable();
+    await createQuestionnaireResultsTable();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function seedDB(): Promise<void> {
+  try {
+    await insertMunicipality(0, "New York");
+
+    await insertStep(1, "Interior work");
+    await insertStep(2, "Exterior work");
+    await insertStep(3, "Bathroom remodel");
+    await insertStep(4, "New bathroom");
+    await insertStep(5, "New laundry room");
+    await insertStep(6, "Other");
+    await insertStep(7, "Over-the-Counter Submission Process", ["A building permit is required.", "Submit application for OTC review"]);
+    await insertStep(8, "In-House Review Process", ["A building permit is required", "Include plans sets.", "Submit application for in-house review."]);
+    await insertStep(9, "Garage door replacement");
+    await insertStep(10, "Exterior doors");
+    await insertStep(11, "Fencing");
+    await insertStep(12, "Other");
+    await insertStep(13, "No Permit", ["Nothing is required! You're set to build."]);
+
+    await insertCompiledTree(0, {
+      0: {
+        prompt:"What residential work are you doing?",
+        formType: 1,
+        workflow: [1, 2],
+        importance: 0
+      },
+      1: {
+        prompt:"What interior work are you doing?",
+        formType: 2,
+        workflow: [3, 4, 5, 6],
+        importance: 0
+      },
+      3: {
+        prompt:"",
+        formType: 3,
+        workflow: [7],
+        importance: 2
+      },
+      4: {
+        prompt:"",
+        formType: 3,
+        workflow: [8],
+        importance: 1
+      },
+      5: {
+        prompt:"",
+        formType: 3,
+        workflow: [8],
+        importance: 1
+      },
+      6: {
+        prompt:"",
+        formType: 3,
+        workflow: [8],
+        importance: 1
+      },
+      2: {
+        prompt:"What exterior work are you doing?",
+        formType: 2,
+        workflow: [9, 10, 11, 12],
+        importance: 0
+      },
+      9: {
+        prompt:"",
+        formType: 3,
+        workflow: [7],
+        importance: 2
+      },
+      10: {
+        prompt:"",
+        formType: 3,
+        workflow: [7],
+        importance: 2
+      },
+      11: {
+        prompt:"",
+        formType: 3,
+        workflow: [13],
+        importance: 1
+      },
+      12: {
+        prompt:"",
+        formType: 3,
+        workflow: [8],
+        importance: 3
       }
-  });
-}
-
-function insertMunicipality(id : number, name : string) {
-  db.run(`INSERT INTO ${tables.municipalities.tableName} (${tables.municipalities.columns.id},${tables.municipalities.columns.name})
-          VALUES (?,?)`, [id,name], (err) => {
-      if (err) {
-          console.error('Error inserting municipality:', err);
-      } else {
-          console.log('Municipality inserted successfully');
-      }
-  });
-}
-
-function insertStep(id : number, prompt : string, extraText? : string[] ) {
-  const JSONextraText : string = JSON.stringify(extraText);
-  db.run(`INSERT INTO ${tables.steps.tableName} (${tables.steps.columns.id},${tables.steps.columns.prompt},${tables.steps.columns.subText})
-          VALUES (?,?,?)`, [id,prompt,JSONextraText], (err) => {
-      if (err) {
-          console.error('Error inserting step:', err);
-      } else {
-          console.log('Step inserted successfully');
-      }
-  });
-}
-
-function insertQuestionnaireResult(results : number[], municipalityId : number) {
-  db.run(`INSERT INTO ${tables.questionnaireResults.tableName} (${tables.questionnaireResults.columns.results}, ${tables.questionnaireResults.columns.municipality})
-          VALUES (?, ?)`, [JSON.stringify(results), municipalityId], (err) => {
-      if (err) {
-          console.error('Error inserting questionnaire result:', err);
-      } else {
-          console.log('Questionnaire result inserted successfully');
-      }
-  });
-}
-
-
-async function buildTables() : Promise<void> {
-  return new Promise<void>((_resolve,_reject) => {
-    createCompiledTreesTable();
-    createMunicipalitiesTable();
-    createStepsTable();
-    createQuestionnaireResultsTable();
-  });
-}
-//Write code to seed DB with example from notion
-async function seedDB() : Promise<void>{
-  return new Promise<void>((_resolve,_reject) => {
-    insertMunicipality(0,"New York");
-
-    insertStep(1,"Interior work");
-    insertStep(2,"Exterior work");
-    insertStep(3,"Bathroom remodel");
-    insertStep(4,"New bathroom");
-    insertStep(5,"New laundry room");
-    insertStep(6,"Other");
-    insertStep(7,"Over-the-Counter Submission Process",["A building permit is required.","Submit application for OTC review"]);
-    insertStep(8,"In-House Review Process",["A building permit is required","Include plans sets.","Submit application for in-house review."]);
-    insertStep(9,"Garage door replacement");
-    insertStep(10,"Exterior doors");
-    insertStep(11,"Fencing");
-    insertStep(12,"Other");
-    insertStep(14,"No Permit",["Nothing is required! You're set to build."]);
-
-    insertCompiledTree(0,{
-      0:[1,[1,2]],
-      1:[2,[3,4,5,6]],//multi select need importance level
-      3:[0,[7],2],
-      4:[0,[8],1],
-      5:[0,[8],1],
-      6:[0,[8],1],
-      2:[2,[9,10,11,12]],//multi select need importance level
-      9:[0,[7],2],
-      10:[0,[7],2],
-      11:[0,[14],1],
-      12:[0,[8],3]}) 
-
     });
-  
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 async function handleExecution() {
   try {
-  //await buildTables();
-  await seedDB();
-  console.log("Made and seeded")
-}
-catch{
-  console.log("Errors");
-}
-finally{
-  console.log("finished");
-  db.close()
-}
+    await buildTables();
+    console.log("Made Tables")
+    await seedDB();
+    console.log("Seeded tables");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    db.close();
+  }
 }
 
 handleExecution();

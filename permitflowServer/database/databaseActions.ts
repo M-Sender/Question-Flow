@@ -3,7 +3,7 @@ import { config, tables } from './config';
 import { compiledTree, questionSet, stepLogic } from '../../interfaces';
 import { promisify } from 'util';
 
-const db = new sqlite3.Database("./database/" + config.databasePath, (err) => {
+const db = new sqlite3.Database("./database/"+config.databasePath, (err) => {
     if (err) {
         console.error('Error opening database:', err);
     } else {

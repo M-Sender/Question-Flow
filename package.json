@@ -1,0 +1,17 @@
+{
+  "name": "permitflow",
+  "version": "0.1.0",
+  "private": true, 
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "cd permitflowViews/ && npm start & cd permitflowServer && ts-node server.ts",
+    "lint": "next lint",
+    "setup":"npm run setupClient",
+    "setupClient": "cd permitflowViews/ && npm install && npm run build && cd ..",
+    "setupServer": "cd permitflowServer/ && npm install && npm run buildDB && cd ..",
+    "setupAll":"npm run setupServer && npm run setupClient",
+    "quickStart":"npm run setupAll && npm start"
+  }
+  
+}

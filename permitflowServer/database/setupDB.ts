@@ -5,6 +5,18 @@ import { promisify } from 'util';
 const db = new sqlite3.Database(config.databasePath);
 const dbRunAsync: Function = promisify(db.run).bind(db);
 
+async function dropTablesIfExists() {
+  try {
+      await dbRunAsync(`DROP TABLE IF EXISTS ${tables.compiledTrees.tableName}`);
+      await dbRunAsync(`DROP TABLE IF EXISTS ${tables.municipalities.tableName}`);
+      await dbRunAsync(`DROP TABLE IF EXISTS ${tables.steps.tableName}`);
+      await dbRunAsync(`DROP TABLE IF EXISTS ${tables.questionnaireResults.tableName}`);
+  } catch (error) {
+      console.error("Error dropping tables:", error);
+  }
+}
+
+
 function createCompiledTreesTable() {
   return dbRunAsync(`CREATE TABLE ${tables.compiledTrees.tableName} (
     ${tables.compiledTrees.columns.id} INTEGER PRIMARY KEY,
@@ -161,6 +173,8 @@ async function seedDB(): Promise<void> {
 
 async function handleExecution() {
   try {
+    await dropTablesIfExists();
+    console.log("Cleared Old")
     await buildTables();
     console.log("Made Tables")
     await seedDB();

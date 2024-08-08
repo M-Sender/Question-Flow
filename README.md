@@ -1,4 +1,4 @@
-# PermitFlow Case Study
+
 
 ## What it is
 
@@ -61,15 +61,3 @@ Once both the server and client are running, open a web browser and go to [http:
       -`answers`: Provides a trace of the steps followed by the respondent. Although not as detailed as storing each individual answer, it still offers insights into the respondent's journey through the questionnaire.
 
       -`timestamp` and `municipality`: Enable temporal and geographical analysis, allowing the identification of trends over time and in different areas.
-
-## If more time
-
-If there was more time, here are the changes I would make:
-
-- Add more municipalities and compiled trees to accommodate a wider range of permit application scenarios.
-- Create a web interface for easy creation of trees and question steps to customize the permit flow.
-- Implement session management using cookies or session IDs to store current sessions with answer trees, ensuring that sessions persist even after page refreshes.
-
-## Video link
-
-Loom Link: [https://www.loom.com/share/4eb4f6ec5be34dc889bb82f232973ccf?sid=4f389f35-94f3-4dea-945e-f3a36efc03b2](https://www.loom.com/share/4eb4f6ec5be34dc889bb82f232973ccf?sid=4f389f35-94f3-4dea-945e-f3a36efc03b2)

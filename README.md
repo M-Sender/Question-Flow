@@ -10,7 +10,7 @@ To build and run the project locally, follow these steps:
 
 **Clone the repository**:
 
-`git clone https://github.com/msender/PermitFlow-Case-Study`
+`git clone https://github.com/msender/Question-Flow`
 
 **Quick Start**:
 
